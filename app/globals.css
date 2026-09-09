@@ -1,0 +1,253 @@
+/* ==========================================================================
+   Design tokens — transcribed from the Figma "Design System" page.
+   Naming follows Figma exactly so tokens stay traceable back to the file.
+   ========================================================================== */
+
+:root {
+  /* --- Colors: Beige ---------------------------------------------------- */
+  --color-beige-500: #98908b;
+  --color-beige-100: #f8f4f0;
+
+  /* --- Colors: Grey ----------------------------------------------------- */
+  --color-grey-900: #201f24;
+  --color-grey-500: #696868;
+  --color-grey-300: #b3b3b3;
+  --color-grey-100: #f2f2f2;
+
+  --color-white: #ffffff;
+
+  /* --- Colors: Secondary ------------------------------------------------
+     These five are the only ones used as `theme` values in data.json.
+     Red is the odd one out — reserved for destructive / error states.     */
+  --color-green: #277c78;
+  --color-yellow: #f2cdac;
+  --color-cyan: #82c9d7;
+  --color-navy: #626070;
+  --color-red: #c94736;
+  --color-purple: #826cb0;
+
+  /* --- Colors: Other ----------------------------------------------------
+     NOTE: Figma names #af81ba "Purple" as well, colliding with the
+     secondary #826cb0. Disambiguated here as `purple-light`.             */
+  --color-purple-light: #af81ba;
+  --color-turquoise: #597c7c;
+  --color-brown: #93674f;
+  --color-magenta: #934f6f;
+  --color-blue: #3f82b2;
+  --color-navy-grey: #97a0ac;
+  --color-army-green: #7f9161;
+  --color-gold: #cab361;
+  --color-orange: #be6c49;
+
+  /* --- Semantic aliases -------------------------------------------------
+     Deliberately thin. Grow this as components reveal what they need,
+     rather than guessing the full set up front.                          */
+  --color-page-bg: var(--color-beige-100);
+  --color-surface: var(--color-white);
+  --color-text: var(--color-grey-900);
+  --color-text-muted: var(--color-grey-500);
+  --color-text-subtle: var(--color-beige-500);
+  --color-sidebar-bg: var(--color-grey-900);
+  --color-destructive: var(--color-red);
+
+  /* --- Typography -------------------------------------------------------
+     Public Sans. Letter spacing is 0 on every preset, so it is omitted.   */
+  --font-sans: var(--font-public-sans), system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+
+  --text-preset-1-size: 2rem; /* 32px */
+  --text-preset-1-lh: 120%;
+  --text-preset-1-weight: 700;
+
+  --text-preset-2-size: 1.25rem; /* 20px */
+  --text-preset-2-lh: 120%;
+  --text-preset-2-weight: 700;
+
+  --text-preset-3-size: 1rem; /* 16px */
+  --text-preset-3-lh: 150%;
+  --text-preset-3-weight: 700;
+
+  --text-preset-4-size: 0.875rem; /* 14px */
+  --text-preset-4-lh: 150%;
+  --text-preset-4-weight: 400;
+
+  --text-preset-4-bold-size: 0.875rem; /* 14px */
+  --text-preset-4-bold-lh: 150%;
+  --text-preset-4-bold-weight: 700;
+
+  --text-preset-5-size: 0.75rem; /* 12px */
+  --text-preset-5-lh: 150%;
+  --text-preset-5-weight: 400;
+
+  --text-preset-5-bold-size: 0.75rem; /* 12px */
+  --text-preset-5-bold-lh: 150%;
+  --text-preset-5-bold-weight: 700;
+
+  /* --- Spacing ----------------------------------------------------------
+     Figma scale names retained (500 = 40px, 50 = 4px).                    */
+  --spacing-500: 40px;
+  --spacing-400: 32px;
+  --spacing-300: 24px;
+  --spacing-250: 20px;
+  --spacing-200: 16px;
+  --spacing-150: 12px;
+  --spacing-100: 8px;
+  --spacing-50: 4px;
+
+  /* --- Not in the screenshots -------------------------------------------
+     The Figma file lists a `drop-shadow` effect style and the mockups use
+     rounded cards, but neither value was captured. Pull the real numbers
+     from Figma and replace these guesses before building components.      */
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --shadow-card: 0 4px 24px rgb(0 0 0 / 0.05);
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-size: var(--text-preset-4-size);
+  line-height: var(--text-preset-4-lh);
+  font-weight: var(--text-preset-4-weight);
+  color: var(--color-text);
+  background-color: var(--color-page-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Visible focus for keyboard users — the challenge requires full keyboard
+   operability, so this is a floor, not a nicety. */
+:focus-visible {
+  outline: 2px solid var(--color-grey-900);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Typography utilities
+   Built from the tokens above. Use directly, or `composes: text-preset-3
+   from global;` inside a CSS Module.
+   ========================================================================== */
+
+.text-preset-1 {
+  font-size: var(--text-preset-1-size);
+  line-height: var(--text-preset-1-lh);
+  font-weight: var(--text-preset-1-weight);
+}
+
+.text-preset-2 {
+  font-size: var(--text-preset-2-size);
+  line-height: var(--text-preset-2-lh);
+  font-weight: var(--text-preset-2-weight);
+}
+
+.text-preset-3 {
+  font-size: var(--text-preset-3-size);
+  line-height: var(--text-preset-3-lh);
+  font-weight: var(--text-preset-3-weight);
+}
+
+.text-preset-4 {
+  font-size: var(--text-preset-4-size);
+  line-height: var(--text-preset-4-lh);
+  font-weight: var(--text-preset-4-weight);
+}
+
+.text-preset-4-bold {
+  font-size: var(--text-preset-4-bold-size);
+  line-height: var(--text-preset-4-bold-lh);
+  font-weight: var(--text-preset-4-bold-weight);
+}
+
+.text-preset-5 {
+  font-size: var(--text-preset-5-size);
+  line-height: var(--text-preset-5-lh);
+  font-weight: var(--text-preset-5-weight);
+}
+
+.text-preset-5-bold {
+  font-size: var(--text-preset-5-bold-size);
+  line-height: var(--text-preset-5-bold-lh);
+  font-weight: var(--text-preset-5-bold-weight);
+}
+
+/* Screen-reader-only text. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
