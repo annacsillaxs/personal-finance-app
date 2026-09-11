@@ -1,0 +1,25 @@
+.main {
+  padding: var(--spacing-300) var(--spacing-200) var(--spacing-500);
+  /* Clear the fixed bottom bar. */
+  margin-bottom: 74px;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: var(--spacing-400) var(--spacing-500) var(--spacing-500);
+    margin-bottom: 74px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .main {
+    margin-bottom: 0;
+    margin-left: 300px;
+    padding: var(--spacing-400) var(--spacing-500);
+    transition: margin-left 200ms ease;
+  }
+
+  .shell[data-minimised] .main {
+    margin-left: 88px;
+  }
+}

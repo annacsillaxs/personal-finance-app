@@ -1,0 +1,212 @@
+/* ===========================================================================
+ * Three layouts, one component:
+ *   < 768px   bottom bar, icons only
+ *   768-1279  bottom bar, icons + labels
+ *   >= 1280   left rail, expandable/minimisable
+ *
+ * The desktop threshold is a judgement call — the Figma frame is 1440, but
+ * that would leave a 1366px laptop on the tablet bar. Adjust if you disagree.
+ * ========================================================================= */
+
+.sidebar {
+  position: fixed;
+  z-index: 10;
+  background-color: var(--color-sidebar-bg);
+  display: flex;
+}
+
+.logo,
+.minimise {
+  display: none;
+}
+
+.list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-200);
+  color: var(--color-grey-300);
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+/* The shipped SVGs have fill="#b3b3b3" baked in, so an <img> could never turn
+   green when active. Used as a mask the file becomes a stencil and the icon
+   takes its colour from the text — one rule instead of two sets of assets. */
+.icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background-color: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+.link:hover {
+  color: var(--color-white);
+}
+
+.link.active {
+  color: var(--color-grey-900);
+  background-color: var(--color-beige-100);
+}
+
+.link.active .icon {
+  color: var(--color-green);
+}
+
+/* --- mobile + tablet: bottom bar ---------------------------------------- */
+
+@media (max-width: 1279px) {
+  .sidebar {
+    inset: auto 0 0 0;
+    padding: var(--spacing-100) var(--spacing-200) 0;
+    border-radius: var(--spacing-100) var(--spacing-100) 0 0;
+  }
+
+  .list {
+    flex: 1;
+    justify-content: space-between;
+    gap: var(--spacing-50);
+  }
+
+  .list li {
+    flex: 1;
+  }
+
+  .link {
+    flex-direction: column;
+    gap: var(--spacing-50);
+    padding: var(--spacing-150) 0 var(--spacing-150);
+    border-radius: var(--spacing-100) var(--spacing-100) 0 0;
+    border-bottom: 4px solid transparent;
+  }
+
+  .link.active {
+    border-bottom-color: var(--color-green);
+  }
+}
+
+@media (max-width: 767px) {
+  /* Icons only — five labels do not fit on a 375px screen. */
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .label {
+    font-size: var(--text-preset-5-bold-size);
+    line-height: var(--text-preset-5-bold-lh);
+    font-weight: var(--text-preset-5-bold-weight);
+  }
+}
+
+/* --- desktop: left rail -------------------------------------------------- */
+
+@media (min-width: 1280px) {
+  .sidebar {
+    inset: 0 auto 0 0;
+    width: 300px;
+    flex-direction: column;
+    padding-bottom: var(--spacing-300);
+    border-radius: 0 var(--spacing-200) var(--spacing-200) 0;
+    transition: width 200ms ease;
+  }
+
+  .logo {
+    display: block;
+    padding: var(--spacing-500) var(--spacing-400) var(--spacing-500);
+  }
+
+  .logoSmall {
+    display: none;
+  }
+
+  .list {
+    flex-direction: column;
+    gap: var(--spacing-50);
+    padding-right: var(--spacing-300);
+  }
+
+  .link {
+    justify-content: flex-start;
+    padding: var(--spacing-200) var(--spacing-400);
+    border-radius: 0 var(--spacing-150) var(--spacing-150) 0;
+    border-left: 4px solid transparent;
+    font-size: var(--text-preset-3-size);
+    line-height: var(--text-preset-3-lh);
+    font-weight: var(--text-preset-3-weight);
+  }
+
+  .link.active {
+    border-left-color: var(--color-green);
+    /* Compensate for the border so labels stay optically aligned. */
+    padding-left: calc(var(--spacing-400) - 4px);
+  }
+
+  .minimise {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-200);
+    margin-top: auto;
+    padding: var(--spacing-200) var(--spacing-400);
+    background: none;
+    border: 0;
+    color: var(--color-grey-300);
+    font-size: var(--text-preset-3-size);
+    line-height: var(--text-preset-3-lh);
+    font-weight: var(--text-preset-3-weight);
+    transition: color 120ms ease;
+  }
+
+  .minimise:hover {
+    color: var(--color-white);
+  }
+
+  .minimised {
+    width: 88px;
+  }
+
+  .minimised .logoLarge {
+    display: none;
+  }
+
+  .minimised .logoSmall {
+    display: block;
+  }
+
+  .minimised .logo {
+    padding-inline: var(--spacing-400);
+  }
+
+  .minimised .label {
+    display: none;
+  }
+
+  .minimised .link,
+  .minimised .minimise {
+    padding-inline: var(--spacing-300);
+  }
+
+  .minimised .link.active {
+    padding-left: calc(var(--spacing-300) - 4px);
+  }
+
+  .minimised .minimise .icon {
+    transform: rotate(180deg);
+  }
+}

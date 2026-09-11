@@ -33,3 +33,20 @@ export function percentOf(cents: number, targetCents: number): number {
   if (targetCents <= 0) return 0;
   return Math.min(100, Math.max(0, (cents / targetCents) * 100));
 }
+
+/**
+ * Progress towards a target, as the design renders it.
+ *
+ * Truncated to one decimal, not rounded. The design shows 66.6% for 40/60
+ * (rounding gives 66.7) and 36.8% for 531/1440 (rounding gives 36.9), so
+ * truncation matches four of the five mockup values. It is also the right
+ * bias for a savings app: never tell someone they are further along than
+ * they are.
+ *
+ * The fifth, Savings at 7.95%, is the outlier — truncation gives 7.9. It
+ * appears to be hand-typed in the design rather than following a rule.
+ */
+export function formatPercent(cents: number, targetCents: number): string {
+  const pct = percentOf(cents, targetCents);
+  return `${(Math.floor(pct * 10) / 10).toFixed(1)}%`;
+}
