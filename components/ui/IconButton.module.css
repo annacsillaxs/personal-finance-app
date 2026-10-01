@@ -1,0 +1,36 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* The glyph is 16px, which is far below a usable touch target. Padding
+     grows the hit area to 32px; the negative margin keeps the icon optically
+     where the design puts it, so the layout does not shift. */
+  padding: var(--spacing-100);
+  margin: calc(var(--spacing-100) * -1);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: var(--color-beige-500);
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.button:hover:not(:disabled) {
+  color: var(--color-grey-900);
+  background-color: var(--color-beige-100);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Same stencil trick as the nav: the shipped SVG has fill="#201F24" baked in,
+   so as an <img> it could never respond to hover. As a mask it inherits
+   colour from the button. */
+.icon {
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}

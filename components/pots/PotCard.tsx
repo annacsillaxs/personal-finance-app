@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/IconButton";
 import { formatCents, formatPercent, percentOf } from "@/lib/money";
 import type { PotSummary } from "@/lib/services/pots";
 import styles from "./PotCard.module.css";
@@ -18,12 +19,23 @@ export function PotCard({ pot }: { pot: PotSummary }) {
         <h2 id={headingId} className={`text-preset-2 ${styles.name}`}>
           {pot.name}
         </h2>
-        {/* Edit/delete menu lands with the modals. */}
+        {/*
+          When this opens a menu, add aria-haspopup="menu" and an
+          aria-expanded that tracks the open state. Both would be lying right
+          now, so they are deliberately absent.
+        */}
+        <IconButton
+          icon="/images/icon-dots-three-outline.svg"
+          label={`${pot.name} options`}
+          disabled
+        />
       </div>
 
       <div>
         <div className={styles.savedRow}>
-          <span className={`text-preset-4 ${styles.savedLabel}`}>Total Saved</span>
+          <span className={`text-preset-4 ${styles.savedLabel}`}>
+            Total Saved
+          </span>
           <span className="text-preset-1">{formatCents(pot.totalCents)}</span>
         </div>
 
@@ -40,7 +52,7 @@ export function PotCard({ pot }: { pot: PotSummary }) {
           aria-valuemax={100}
           aria-valuenow={Math.round(percent)}
           aria-valuetext={`${formatCents(pot.totalCents)} of ${formatCents(
-            pot.targetCents,
+            pot.targetCents
           )} saved`}
         >
           <div
