@@ -1,11 +1,12 @@
 /**
- * Seeds the ledger from the challenge's data.json.
+ * Seeds the ledger from the challenge data (lib/db/seed-data.json).
  *
  * Run with: npm run db:seed
  */
 import { readFileSync } from "node:fs";
+import { dirname, resolve as resolvePath } from "node:path";
+import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
-import { resolve } from "node:path";
 import { db } from "./index";
 import { budgets, entries, pots, users } from "./schema";
 import { toCents, formatCents } from "../money";
@@ -47,7 +48,12 @@ function avatarToPublicPath(avatar: string): string {
 
 async function main() {
   const raw: RawData = JSON.parse(
-    readFileSync(resolve(process.cwd(), "starter-code/data.json"), "utf8"),
+    // Resolved relative to this file, not the cwd, so the seed works from
+    // anywhere (npm scripts, CI, a different working directory).
+    readFileSync(
+      resolvePath(dirname(fileURLToPath(import.meta.url)), "seed-data.json"),
+      "utf8",
+    ),
   );
 
   const correctedPots = raw.pots.map((p) => ({

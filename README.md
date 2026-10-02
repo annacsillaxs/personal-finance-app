@@ -1,148 +1,215 @@
-# Frontend Mentor - Personal finance app
+# Personal finance app
 
-![Design preview for the Personal finance app coding challenge](./preview.jpg)
+A full-stack personal finance app — budgets, savings pots, transactions and
+recurring bills — built as a solution to the
+[Frontend Mentor "Personal finance app" challenge](https://www.frontendmentor.io/challenges/personal-finance-app-JfjtZgyMt1)
+(guru level).
 
-## Welcome! 👋
+![Design preview](./preview.jpg)
 
-Thanks for purchasing this premium Frontend Mentor coding challenge.
+> The image above is the supplied design, not a screenshot of the build.
+> Replace it once the UI is finished.
 
-[Frontend Mentor](https://www.frontendmentor.io) challenges help you improve your coding skills by building realistic projects. These premium challenges are perfect portfolio pieces, so please feel free to use what you create in your portfolio to show others.
+---
 
-**To do this challenge, you need a very strong understanding of HTML, CSS, and JavaScript.**
+## Status
 
-## The challenge
+Work in progress. Honest state of play:
 
-Your challenge is to build out this personal finance app and get it looking as close to the design as possible.
+| Area | Status |
+|---|---|
+| Design tokens (colour, type, spacing) | Done |
+| Database schema + seed | Done |
+| Service layer (balance, pots) | Done |
+| App shell and navigation | Done |
+| Pots page | Renders live data; actions not wired |
+| Transactions / Budgets / Recurring bills | Stubs |
+| Overview | Stub (built last — it aggregates everything else) |
+| Authentication | Not started |
 
-You can use any tools you like to help you complete the challenge. So if you've got something you'd like to practice, feel free to give it a go.
+---
 
-We provide the data in a local `data.json` file, so use that to populate the content on first load. If you want to take it up a notch, feel free to build this as a full-stack application!
+## Built with
 
-Your users should be able to:
+- **Next.js 16** (App Router) and **React 19**
+- **TypeScript**
+- **CSS Modules** with custom properties — no CSS framework
+- **PostgreSQL** (Neon) with **Drizzle ORM**
+- Self-hosted **Public Sans** via `next/font/local`
 
-- See all of the personal finance app data at-a-glance on the overview page
-- View all transactions on the transactions page with pagination for every ten transactions
-- Search, sort, and filter transactions
-- Create, read, update, delete (CRUD) budgets and saving pots
-- View the latest three transactions for each budget category created
-- View progress towards each pot
-- Add money to and withdraw money from pots
-- View recurring bills and the status of each for the current month
-- Search and sort recurring bills
-- Receive validation messages if required form fields aren't completed
-- Navigate the whole app and perform all actions using only their keyboard
-- View the optimal layout for the interface depending on their device's screen size
-- See hover and focus states for all interactive elements on the page
-- **Bonus**: Save details to a database (build the project as a full-stack app)
-- **Bonus**: Create an account and log in (add user authentication to the full-stack app)
+---
 
-### Want some support on the challenge?
+## Key decisions
 
-[Join our community](https://www.frontendmentor.io/community) and ask questions in the **#help** channel.
+### Money is an append-only ledger
 
-### Expected behaviour
+Balances aren't stored and overwritten. Every movement of money is a row in a
+single `entries` table, signed from the main balance's point of view, which
+makes two facts fall out of one column:
 
-**⚠️ IMPORTANT ⚠️: The data in some designs will differ from what's in the `data.json` file. We recommend using the desktop designs to reference how the data should look, as these all include the correct data and copy. The tablet and mobile layouts are there for layout reference.**
+```
+current balance  =  SUM(amount_cents)
+a pot's total    = -SUM(amount_cents) WHERE pot_id = <pot>
+```
 
-- Overview
-  - This page should display all the information at-a-glance and allow for easy navigation.
-  - We recommend building this page last, as it will require logic from the other pages (e.g., recurring bills) in order to display the data correctly.
-- Transactions
-  - Output the transactions from the `data.json` file, paginating results for every ten transactions.
-  - The search should allow for name search, but feel free to add other functionality like searching for transaction amounts if you want to test yourself.
-  - The sorting options include: Latest (most recent), Oldest, A to Z, Z to A, Highest (transaction amount), Lowest.
-  - The filter is by transaction category, which are: Entertainment, Bills, Groceries, Dining Out, Transportation, Personal Care, Education, Lifestyle, Shopping, General. Filtering by category should only show transactions from the selected category.
-- Budgets
-  - Don't worry if you can't create a donut pie chart exactly like in the design. Do your best to get close, but feel free to go in your own direction.
-  - The "Spent" amount should calculate the money spent within the category for the current month (August 2024 in the app).
-  - The "Latest Spending" component should display the three last transactions for that category regardless of the month.
-  - Clicking "See All" on a budget should navigate to the Transactions page with the filter set to the relevant category. For example, clicking "See All" on Entertainment should only show transactions with the Entertainment category.
-  - Adding a new budget should automatically pull in the three latest transactions from the created budget category and calculate the amount spent so far for August 2024.
-  - Deleting a budget should remove it from the Budgets page and the Overview.
-- Pots
-  - Adding money to a pot should deduct the given amount from the current balance (seen on the Overview page).
-  - Withdrawing money from a pot should add that amount to the current balance.
-  - Deleting a pot should return all the money from the pot to the current balance.
-- Recurring Bills
-  - List out all the recurring transactions and ensure only one item is shown per vendor.
-  - Show the recurring transactions that have already been paid for August 2024.
-  - Show the payments due to be paid soon based on their monthly payment date. Calculate this from recurring transactions yet to be paid for August 2024, but due within five days of the latest overall transaction in the app (Emma Richardson - 19 August 2024).
-  - The search should search based on name.
-  - The sorting options include: Latest (earliest in the month), Oldest, A to Z, Z to A, Highest (transaction amount), Lowest.
+Money moving *into* a pot is negative because it leaves the balance. Nothing is
+ever updated or deleted: withdrawing from a pot appends a row, and deleting a
+pot appends a compensating row and sets `closed_at`. The history stays readable.
 
-## Where to find everything
+The supplied `data.json` states a balance of `$4,836.00` that its 49
+transactions cannot account for. Rather than invent history, the difference is
+recorded as a single explicit `opening_balance` entry of `$3,571.50` — computed
+from the figure that has to come out. The seed script asserts the ledger
+reconciles and aborts if it ever stops.
 
-Your task is to build out the project to the design file provided. You can download the Figma design file on the platform. You can download the design file on the platform. **Please be sure not to share them with anyone else.** The design download comes with a `README.md` file as well to help you get set up.
+### `entries` is polymorphic, and the database enforces its shape
 
-All the required assets for this project are in the `/assets` folder. The images are already exported for the correct screen size and optimized. Some are reusable at multiple screen sizes. So if you don't see an image in a specific folder, it will typically be in another folder for that page.
+Three kinds of row share one table, which normally invites half-filled records.
+A `CHECK` constraint forces each kind to carry exactly its own fields. Without
+it a transaction row could arrive carrying a `pot_id` and silently corrupt every
+pot total summed over it.
 
-We also include variable and static font files for the required fonts for this project. You can choose to either link to Google Fonts or use the local font files to host the fonts yourself. Note that we've removed the static font files for the font weights that aren't needed for this project.
+Budgets and pots use **partial unique indexes** (`WHERE closed_at IS NULL`), so
+"one budget per category" and "no duplicate pot names" hold in the database
+rather than in form validation — while closed records still free their name up.
 
-The design system in the design file will give you more information about the various colors, fonts, and styles used in this project. Our fonts always come from [Google Fonts](https://fonts.google.com/).
+### Money is integer cents, never floats
 
-## Using AI coding assistants
+`data.json` demonstrates why: its stored `expenses` total is `1700.50`, but
+summing its own transactions gives `1699.75`.
 
-We've included two files to help you if you're using AI coding assistants (like Claude, GitHub Copilot, Cursor, etc.) while working on this challenge:
+### "Today" is pinned, and a lint rule enforces it
 
-- `AGENTS.md` - Contains detailed instructions for AI assistants on how to help you with this challenge. It's tailored to this challenge's difficulty level, so the AI will provide guidance appropriate to your learning stage—offering more support for beginner challenges and encouraging more independence on advanced ones.
-- `CLAUDE.md` - A pointer file that directs Claude-based tools to the AGENTS.md instructions.
+The challenge data is frozen in August 2024. Budgets show "spent this month"
+and recurring bills are "due within five days" of the latest transaction, so
+the real system clock would silently produce wrong numbers — no crash, just an
+app that quietly disagrees with the design.
 
-**How to use them:** You don't need to do anything! These files are automatically detected by most AI coding tools. The AI will read them and adjust its behavior to be a better learning partner—guiding you toward solutions rather than just giving you the answers.
+All time comes from `getNow()` in `lib/clock.ts`, and an ESLint rule rejects
+bare `new Date()` and `Date.now()` everywhere else. Month boundaries are
+computed in UTC deliberately, since the seed timestamps are UTC. To run on real
+time, delete `NEXT_PUBLIC_APP_NOW` from `.env.local` — that's the whole change.
 
-**Note:** These files are designed to help you *learn*, not to do the work for you. The AI is instructed to ask questions, give hints, and explain concepts rather than writing complete solutions.
+### Auth is deferred but not unplanned
 
-## Building your project
+Every table already carries `userId`, and every caller gets it from
+`getCurrentUser()` in `lib/services/auth.ts`. Adding real sessions replaces one
+function body rather than threading a new argument through the app.
 
-Feel free to use any workflow that you feel comfortable with. Below is a suggested process, but do not feel like you need to follow these steps:
+### Icons are CSS masks, not images
 
-1. Separate the `starter-code` from the rest of this project and rename it to something meaningful for you. Initialize the codebase as a public repository on [GitHub](https://github.com/). Creating a repo will make it easier to share your code with the community if you need help. If you're not sure how to do this, [have a read-through of this Try Git resource](https://try.github.io/). **⚠️ IMPORTANT ⚠️: There are already a couple of `.gitignore` files in this project. Please do not remove them or change the content of the files. If you create a brand new project, please use the `.gitignore` files provided in your new codebase. This is to avoid the accidental upload of the design files to GitHub. With these premium challenges, please be sure not to share the design files in your GitHub repo. Thanks!**
-2. Configure your repository to publish your code to a web address. This will also be useful if you need some help during a challenge as you can share the URL for your project with your repo URL. There are a number of ways to do this, and we provide some recommendations below.
-3. Look through the designs to start planning out how you'll tackle the project. This step is crucial to help you think ahead for CSS classes to create reusable styles.
-4. Before adding any styles, structure your content with HTML. Writing your HTML first can help focus your attention on creating well-structured content.
-5. Write out the base styles for your project, including general content styles, such as `font-family` and `font-size`.
-6. Start adding styles to the top of the page and work down. Only move on to the next section once you're happy you've completed the area you're working on.
+The supplied SVGs have their fill colour baked in, so an `<img>` could never
+turn green when active or respond to hover. Used as a `mask` with
+`background-color: currentColor`, each file becomes a stencil that inherits
+colour — one CSS rule instead of maintaining recoloured copies.
 
-## Deploying your project
+### Sidebar state lives in a cookie
 
-As mentioned above, there are many ways to host your project for free. Our recommended hosts are:
+The minimise flag is read server-side in the layout, so the correct rail width
+is in the first HTML response. `localStorage` would render the full 300px rail
+and snap to 88px on every page load.
 
-- [GitHub Pages](https://pages.github.com/)
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
+---
 
-You can host your site using one of these solutions or any of our other trusted providers. [Read more about our recommended and trusted hosts](https://www.frontendmentor.io/guides/hosting-your-solution).
+## Deliberate deviations from the design
 
-## Create a custom `README.md`
+Three places where the supplied material is internally inconsistent and the
+app does something defensible instead.
 
-We strongly recommend overwriting this `README.md` with a custom one. We've provided a template inside the [`README-template.md`](./README-template.md) file in this starter code.
+**Expenses show `$1,699.75`, the design shows `$1,700.50`.** The stored
+aggregate disagrees with the sum of its own transactions. A finance app whose
+total contradicts its line items is worse than one 75c off a mockup, so the
+figure is derived.
 
-The template provides a guide for what to add. A custom `README` will help you explain your project and reflect on your learnings. Please feel free to edit our template as much as you like.
+**The Gift pot is `$40 / $60`.** `data.json` duplicated Concert Ticket's
+`110/150`, but the design shows `$40` with a `66.6%` bar — which only works
+against a `$60` target. The challenge README says the designs win.
 
-Once you've added your information to the template, delete this file and rename the `README-template.md` file to `README.md`. That will make it show up as your repository's README file.
+**Progress percentages truncate to one decimal rather than rounding.**
+Tested against the five mockup values, truncation matches four where rounding
+matches two. It is also the right bias: never show someone further along than
+they are.
 
-## Submitting your solution
+---
 
-Submit your solution on the platform for the rest of the community to see. Follow our ["Complete guide to submitting solutions"](https://www.frontendmentor.io/guides/how-to-submit-solutions) for tips on how to do this.
+## Running locally
 
-Remember, if you're looking for feedback on your solution, be sure to ask questions when submitting it. The more specific and detailed you are with your questions, the higher the chance you'll get valuable feedback from the community.
+### Prerequisites
 
-**⚠️ IMPORTANT ⚠️: With these premium challenges, please be sure not to upload the design files to GitHub when you're submitting to the platform and sharing it around. If you've created a brand new project, the easiest way to do that is to copy across the `.gitignore` provided in this starter project.**
+- Node.js 20.12 or newer
+- A PostgreSQL database (this project uses a [Neon](https://neon.tech) free tier)
 
-## Sharing your solution
+### Setup
 
-There are multiple places you can share your solution:
+```bash
+npm install
 
-1. Share your solution page in the **#finished-projects** channel of our [community](https://www.frontendmentor.io/community). 
-2. Share on [X (formerly Twitter)](https://x.com/frontendmentor) and mention **@frontendmentor**, including the repo and live URLs in your post. We'd love to take a look at what you've built and help share it around.
-3. Share your solution on [LinkedIn](https://www.linkedin.com/company/frontend-mentor/).
-4. Blog about your experience building your project. Writing about your workflow, technical choices, and talking through your code is a brilliant way to reinforce what you've learned. Great platforms to write on are [dev.to](https://dev.to/), [Hashnode](https://hashnode.com/), and [CodeNewbie](https://community.codenewbie.org/).
+cp .env.example .env.local
+# then set DATABASE_URL in .env.local
 
-We provide templates to help you share your solution once you've submitted it on the platform. Please do edit them and include specific questions when you're looking for feedback. 
+npm run db:migrate   # create the schema
+npm run db:seed      # load the challenge data and verify it reconciles
 
-The more specific you are with your questions the more likely it is that another member of the community will give you feedback.
+npm run dev          # http://localhost:3000
+```
 
-## Got feedback for us?
+`/design-system` renders every design token, which is useful for checking a
+value against Figma.
 
-We love receiving feedback! We're always looking to improve our challenges and our platform. So if you have anything you'd like to mention, please email hi[at]frontendmentor[dot]io.
+### Scripts
 
-**Have fun building!** 🚀
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run db:generate` | Generate a migration from schema changes |
+| `npm run db:migrate` | Apply pending migrations |
+| `npm run db:seed` | Reset and reseed (asserts the ledger reconciles) |
+| `npm run db:studio` | Drizzle Studio |
+
+---
+
+## Project structure
+
+```
+app/
+  (dashboard)/        routes sharing the sidebar shell
+  design-system/      every token, rendered
+  fonts/              self-hosted Public Sans + OFL licence
+  globals.css         design tokens and typography utilities
+components/
+  pots/  sidebar/  ui/
+lib/
+  clock.ts            the app's pinned "today"
+  money.ts            integer-cent helpers and formatting
+  db/                 schema, client, seed data
+  design/tokens.ts    palette the theme picker needs at runtime
+  services/           all database access
+drizzle/              generated migrations
+```
+
+Server Components import from `lib/services` directly. Route Handlers will wrap
+the same functions, so the API is real without a Server Component ever fetching
+its own endpoint over HTTP.
+
+---
+
+## What's next
+
+1. Wire the pot modals (add, edit, delete, add money, withdraw)
+2. Transactions — server-side search, sort, filter and pagination via URL params
+3. Budgets, including the donut chart
+4. Recurring bills (one row per vendor; paid / due soon / upcoming)
+5. Overview
+6. Accessibility pass — full keyboard operation is a requirement, not a nicety
+7. Authentication
+8. Deploy
+
+---
+
+## Acknowledgements
+
+Challenge and design by [Frontend Mentor](https://www.frontendmentor.io).
+Public Sans is licensed under the SIL Open Font License; see
+`app/fonts/OFL.txt`.
