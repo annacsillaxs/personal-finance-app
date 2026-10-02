@@ -1,0 +1,44 @@
+# Netlify configuration.
+#
+# Kept in the repo rather than set in the UI so the build is versioned,
+# reviewable, and survives anyone forgetting what they clicked.
+
+[build]
+  # Default for every context EXCEPT production — see [context.production].
+  # Deploy previews and branch deploys build without touching the database.
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+  # The app's "today". Not a secret — it is config, and versioning it keeps the
+  # pinned date visible next to the code that depends on it (lib/clock.ts).
+  # Delete this to make the app run on real time.
+  NEXT_PUBLIC_APP_NOW = "2024-08-19T20:23:11Z"
+
+[context.production]
+  # Migrations run only on production deploys.
+  #
+  # If this lived in [build], every deploy preview would migrate the production
+  # database — a pull request could change the live schema before anyone had
+  # reviewed it. Previews share the same DATABASE_URL, so the only safe default
+  # is for them not to migrate at all.
+  #
+  # A failing migration fails the deploy, which is the behaviour you want:
+  # better a red build than an app running against a schema it does not expect.
+  command = "npm run db:migrate && npm run build"
+
+[[plugins]]
+  # Netlify auto-detects Next.js, but declaring the runtime explicitly means the
+  # behaviour is pinned in the repo instead of inferred.
+  package = "@netlify/plugin-nextjs"
+
+# --- Set in the Netlify UI, not here -----------------------------------------
+#
+#   DATABASE_URL   Neon POOLED connection string, with ?sslmode=require
+#
+# It is a credential, so it must never be committed. Use the pooled endpoint:
+# Netlify Functions run on Lambda, so every cold start is a new container, and
+# the pooled endpoint is what keeps that from exhausting Postgres connections.
+# lib/db/index.ts already sets prepare:false, which pooling requires.

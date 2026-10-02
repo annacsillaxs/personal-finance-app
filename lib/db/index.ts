@@ -1,3 +1,9 @@
+// Build-time tripwire. Every service imports this module, so if any of them is
+// ever pulled into a client bundle — usually by adding "use client" to a
+// component that imports a service *value* rather than just its type — the
+// build fails here with a readable message, instead of silently shipping the
+// Postgres driver to the browser.
+import "server-only";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
@@ -6,7 +12,7 @@ const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error(
-    "DATABASE_URL is not set. Copy .env.example to .env.local and fill it in.",
+    "DATABASE_URL is not set. Copy .env.example to .env.local and fill it in."
   );
 }
 
@@ -17,7 +23,8 @@ const globalForDb = globalThis as unknown as {
 };
 
 const client =
-  globalForDb.pgClient ?? postgres(connectionString, { max: 10, prepare: false });
+  globalForDb.pgClient ??
+  postgres(connectionString, { max: 10, prepare: false });
 
 if (process.env.NODE_ENV !== "production") globalForDb.pgClient = client;
 
