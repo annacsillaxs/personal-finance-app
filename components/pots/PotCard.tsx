@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { formatCents, formatPercent, percentOf } from "@/lib/money";
 import type { PotSummary } from "@/lib/services/pots";
 import styles from "./PotCard.module.css";
+import { PotActions } from "@/components/pots/PotActions";
 
 export function PotCard({ pot }: { pot: PotSummary }) {
   const percent = percentOf(pot.totalCents, pot.targetCents);
@@ -72,12 +72,7 @@ export function PotCard({ pot }: { pot: PotSummary }) {
       </div>
 
       <div className={styles.actions}>
-        <Button variant="secondary" disabled>
-          + Add Money
-        </Button>
-        <Button variant="secondary" disabled>
-          Withdraw
-        </Button>
+        <PotActions pot={pot} />
       </div>
     </article>
   );

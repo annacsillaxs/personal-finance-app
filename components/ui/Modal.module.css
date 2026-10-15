@@ -1,0 +1,98 @@
+/* ===========================================================================
+ * The dialog itself.
+ *
+ * A <dialog> has UA styles of its own — a border, padding and `width:fit-
+ * content` — so most of this is overriding those before adding anything.
+ *
+ * `position: fixed` + `inset: 0` + `margin: auto` centres it in both modes:
+ * inline (the `open` attribute) and top layer (showModal()).
+ * ========================================================================= */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+
+  width: calc(100% - var(--spacing-400));
+  max-width: 560px;
+  max-height: calc(100dvh - var(--spacing-500));
+  overflow-y: auto;
+
+  padding: var(--spacing-400);
+  border: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+}
+
+/* Only ever rendered when the dialog is opened with showModal(). Harmless
+   until then. */
+.dialog::backdrop {
+  background-color: rgb(0 0 0 / 0.5);
+}
+
+/* --- header -------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-200);
+  margin-bottom: var(--spacing-250);
+}
+
+.title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.close {
+  flex-shrink: 0;
+  /* Nudge up so the glyph aligns with the cap height of the title, not its
+     line box. */
+  margin-top: var(--spacing-100);
+}
+
+.description {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-250);
+}
+
+/* --- field --------------------------------------------------------------- */
+
+.field {
+  display: grid;
+  gap: var(--spacing-50);
+  margin-top: var(--spacing-150);
+  color: var(--color-text-muted);
+}
+
+.input {
+  width: 100%;
+  padding: var(--spacing-150) var(--spacing-250);
+  border: 1px solid var(--color-beige-500);
+  border-radius: var(--radius-control);
+  background-color: var(--color-white);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-grey-900);
+  outline-offset: -1px;
+  border-color: transparent;
+}
+
+/* --- footer -------------------------------------------------------------- */
+
+.confirm {
+  width: 100%;
+  padding: var(--spacing-200);
+  border: 0;
+  border-radius: var(--radius-control);
+  background-color: var(--color-grey-900);
+  color: var(--color-white);
+}
+
+.confirm:hover {
+  background-color: var(--color-grey-500);
+}

@@ -56,5 +56,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Personal working notes — the build plan, not part of the deliverable
+# Personal working notes — not part of the deliverable
 /PLAN.md
+/ADD-MONEY-STEPS.md
+
+# Editor config — personal, not part of the deliverable
+/.vscode/
