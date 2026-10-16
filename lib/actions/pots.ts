@@ -3,13 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { toCents } from "@/lib/money";
 import { getCurrentUserId } from "@/lib/services/auth";
-import { ServiceError } from "@/lib/services/errors";
-import { addToPot, withdrawFromPot } from "@/lib/services/pots";
+import { ConflictError, ServiceError } from "@/lib/services/errors";
+import { addToPot, createPot, withdrawFromPot } from "@/lib/services/pots";
 
 export type PotMoneyState =
   | { status: "idle" }
   | { status: "success" }
   | { status: "error"; message: string; field: "amount" };
+
+export type PotFormState =
+  | { status: "idle" }
+  | { status: "success" }
+  | { status: "error"; message: string; field: "name" | "target" };
 
 export async function addMoneyAction(
   prevState: PotMoneyState,
@@ -85,6 +90,77 @@ export async function withdrawAction(
   } catch (error) {
     if (error instanceof ServiceError) {
       return { status: "error", message: error.message, field: "amount" };
+    }
+    throw error;
+  }
+
+  revalidatePath("/pots");
+  return { status: "success" };
+}
+
+export async function createPotAction(
+  prevState: PotFormState,
+  formData: FormData
+): Promise<PotFormState> {
+  const rawName = formData.get("name");
+  const rawTarget = formData.get("target");
+  const theme = formData.get("theme");
+
+  if (
+    typeof rawName !== "string" ||
+    typeof rawTarget !== "string" ||
+    typeof theme !== "string"
+  ) {
+    return {
+      status: "error",
+      message: "Something went wrong. Please try again.",
+      field: "name",
+    };
+  }
+
+  const name = rawName.trim();
+
+  if (!name) {
+    return { status: "error", message: "Pot name is required", field: "name" };
+  }
+
+  if (name.length > 30) {
+    return {
+      status: "error",
+      message: "Pot name must be 30 characters or fewer",
+      field: "name",
+    };
+  }
+
+  let targetCents: number;
+  try {
+    targetCents = toCents(rawTarget);
+  } catch {
+    return {
+      status: "error",
+      message: "Please enter a valid target, for example 2000.00",
+      field: "target",
+    };
+  }
+
+  const userId = await getCurrentUserId();
+
+  try {
+    await createPot({ userId, name, targetCents, theme });
+  } catch (error) {
+    if (error instanceof ConflictError) {
+      return {
+        status: "error",
+        message: error.message,
+        field: "name",
+      };
+    }
+    if (error instanceof ServiceError) {
+      return {
+        status: "error",
+        message: error.message,
+        field: "target",
+      };
     }
     throw error;
   }

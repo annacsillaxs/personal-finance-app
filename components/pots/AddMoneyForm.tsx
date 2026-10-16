@@ -1,7 +1,7 @@
 "use client";
 
 import type { PotSummary } from "@/lib/services/pots";
-import styles from "./AddMoneyForm.module.css";
+import styles from "./PotForms.module.css";
 import { formatCents, formatPercent, percentOf } from "@/lib/money";
 import { useActionState, useEffect, useId } from "react";
 import { addMoneyAction } from "@/lib/actions/pots";

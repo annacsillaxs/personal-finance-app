@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/Button";
 import { PotCard } from "@/components/pots/PotCard";
 import { getCurrentUserId } from "@/lib/services/auth";
 import { listPots } from "@/lib/services/pots";
 import styles from "./page.module.css";
+import { NewPotButton } from "@/components/pots/NewPotButton";
 
 export const metadata = { title: "Pots — finance" };
 
@@ -14,12 +14,13 @@ export default async function PotsPage() {
   // over HTTP here would add a round trip and lose the request context.
   const userId = await getCurrentUserId();
   const pots = await listPots(userId);
+  const usedThemes = pots.map((pot) => pot.theme);
 
   return (
     <>
       <div className={styles.header}>
         <h1 className="text-preset-1">Pots</h1>
-        <Button disabled>+ Add New Pot</Button>
+        <NewPotButton usedThemes={usedThemes}></NewPotButton>
       </div>
 
       {pots.length === 0 ? (
